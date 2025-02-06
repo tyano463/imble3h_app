@@ -15,11 +15,11 @@ read_analog:
     BTFSC ADCON0 GO ;Is conversion done?
     GOTO -1 ;No, test again
     ; BANKSEL 0
-    MOVF ADRESH
+    MOVF ADRESH, 1
     MOVWF GP40
     ; BANKSEL 1
-    MOVF ADRESL
-    MOVWF GP41
+    MOVF ADRESL, 1
+    MOVWF GP41 ;Store in GPR space
     RETURN
 
 save_const:
@@ -44,20 +44,21 @@ delay_us:
     ; GP20
     MOVLW 0
     MOVWF TMR2
-    MOVF GP20
+    MOVF GP20, 1
     MOVWF PR2
     BCF PIR1 TMR2IF
     BSF T2CON TMR2ON
     BTFSS PIR1 TMR2IF
     GOTO -1
     BCF T2CON TMR2ON
+    RETURN
 
 UART_write:
     ;GP30
     
     ; start bit
     BCF GPIO 1
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -67,7 +68,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -77,7 +78,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -87,7 +88,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -97,7 +98,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -107,7 +108,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -117,7 +118,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -127,7 +128,7 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
@@ -137,10 +138,11 @@ UART_write:
     GOTO +2
     BCF GPIO 1
     
-    MOVLW 104
+    MOVLW 68
     MOVWF GP20
     CALL delay_us
 
+    RETURN
 
 main:
     ; BANKSEL 1
@@ -151,7 +153,7 @@ main:
     MOVWF TRISIO
 
     MOVLW 74
-    IORWF ANSEL ; and GP0 as analog
+    IORWF ANSEL, 0 ; and GP0 as analog
     
     ; BANKSEL 0
     MOVLW 89 ; Right justify, AN2, ADON
@@ -180,66 +182,65 @@ wait_button:
     ; BANKSEL 0
     BCF GPIO 1
 
-    MOVLW 104
-    MOVF GP20
+    MOVLW 68
+    MOVF GP20, 1
     CALL delay_us
 
 ;txda\r\n start
-    MOVF GP7f
+    MOVF GP7f, 1
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP7e
+    MOVF GP7e, 1
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP7d
+    MOVF GP7d, 1
     MOVWF GP30
     CALL UART_write
     
-    MOVF GP7c
+    MOVF GP7c, 1
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP7b
+    MOVF GP7b, 1
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP7a
+    MOVF GP7a, 1
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP40
+    MOVF GP40, 1
     ADDLW '0'
     MOVWF GP30
     CALL UART_write
     
-    MOVF GP41
+    MOVF GP41, 1
     MOVWF GP30
-    SWAPF GP30
-    MOVF GP30
+    SWAPF GP30, 0
     ANDLW f
     ADDLW '0'
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP41
+    MOVF GP41, 1
     MOVWF GP30
-    MOVF GP30
+    MOVF GP30, 1
     ANDLW f
     ADDLW '0'
     MOVWF GP30
     CALL UART_write
 
-    MOVF GP79
+    MOVF GP79, 1
     MOVWF GP30
     CALL UART_write
 
     ; BANKSEL 0
     BSF GPIO 1
 
-    MOVLW 208
-    MOVF GP20
+    MOVLW d0
+    MOVF GP20, 1
     CALL delay_us
 
 ;txda\r\n end
