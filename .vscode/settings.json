@@ -1,0 +1,7 @@
+{
+    "python.formatting.provider": "autopep8",
+    "files.associations": {
+        "pic_serial.h": "c",
+        "pic_common.h": "c"
+    }
+}

@@ -173,6 +173,7 @@ loop:
     GOTO loop 
 
     CALL led_on
+
 wait_button:
     BTFSS GPIO 5
     GOTO wait_button

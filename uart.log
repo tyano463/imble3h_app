@@ -1,0 +1,24 @@
+0	1	mikroCPIC1618.exe -MSF -DBG -pP12F683 -RA -O11111114 -fo8 -N"C:\workspace\microc\12f683\uart.mcppi" -SP"C:\opt\microe\microc\Defs\" -SP"C:\opt\microe\microc\Uses\P16\" -SP"C:\workspace\microc\12f683\" -IP"C:\opt\microe\microc\Uses\P16\" "main.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl"	 
+hint: 0	1139	Available RAM: 112 [bytes], Available ROM: 2048 [bytes]	 
+diagnostics: 0	122	Compilation Started	P12F683.c
+diagnostics: 453	123	Compiled Successfully	P12F683.c
+diagnostics: 0	122	Compilation Started	__Lib_Delays.c
+diagnostics: 123	123	Compiled Successfully	__Lib_Delays.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+warning: 0	1507	Unknown pragma line ignored: ''	main.c
+diagnostics: 0	122	Compilation Started	main.c
+diagnostics: 232	123	Compiled Successfully	main.c
+diagnostics: 0	127	All files Compiled in 63 ms	 
+hint: 0	1144	Used RAM (bytes): 14 (12%)  Free RAM (bytes): 98 (88%)	Used RAM (bytes): 14 (12%)  Free RAM (bytes): 98 (88%)
+hint: 0	1144	Used ROM (program words): 274 (13%)  Free ROM (program words): 1774 (87%)	Used ROM (program words): 274 (13%)  Free ROM (program words): 1774 (87%)
+diagnostics: 0	125	Project Linked Successfully	uart.mcppi
+diagnostics: 0	128	Linked in 31 ms	 
+diagnostics: 0	129	Project 'uart.mcppi' completed: 234 ms	 
+diagnostics: 0	103	Finished successfully: 17 2 2025, 11:13:31	uart.mcppi
