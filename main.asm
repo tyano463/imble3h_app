@@ -273,7 +273,7 @@ main_UART_write:
 ;main.c,136 :: 		__asm BCF 3, 5;
 	BCF        RP1_bit, 5
 ;main.c,137 :: 		__asm MOVLW BIT_WAIT_50us;
-	MOVLW      100
+	MOVLW      92
 ;main.c,138 :: 		__asm MOVWF REG_SLEEP;
 	MOVWF      80
 ;main.c,140 :: 		usleep();
@@ -331,7 +331,7 @@ L_main_UART_write12:
 ;main.c,151 :: 		__asm BCF 3, 5;
 	BCF        RP1_bit, 5
 ;main.c,152 :: 		__asm MOVLW BIT_WAIT_50us;
-	MOVLW      100
+	MOVLW      92
 ;main.c,153 :: 		__asm MOVWF REG_SLEEP;
 	MOVWF      80
 ;main.c,155 :: 		usleep();

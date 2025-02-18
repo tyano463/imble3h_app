@@ -119,7 +119,7 @@ static void UART_write(char send_char)
 {
  GPIO.B1 = 0;
  __asm BCF 3, 5;
- __asm MOVLW  0x64 ;
+ __asm MOVLW  0x5C ;
  __asm MOVWF  0x50 ;
 
  usleep();
@@ -134,7 +134,7 @@ static void UART_write(char send_char)
  GPIO.B1 = 0;
  }
  __asm BCF 3, 5;
- __asm MOVLW  0x64 ;
+ __asm MOVLW  0x5C ;
  __asm MOVWF  0x50 ;
 
  usleep();

@@ -18,7 +18,7 @@
 
 #define _XTAL_FREQ 8000000
 
-#define BIT_WAIT_50us 0x64
+#define BIT_WAIT_50us 0x5C     // 0x64 - 4us
 #define BIT_WAIT_100us 0xa0
 #define REG_SLEEP 0x50
 #define HIGH_NIBBLE 1
