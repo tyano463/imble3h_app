@@ -1,3 +1,9 @@
 /imble3h_uart.hex
 /*.txt
 /test.*
+/pic_writer
+/*.o
+/GPATH
+/GRTAGS
+/GTAGS
+/*.log

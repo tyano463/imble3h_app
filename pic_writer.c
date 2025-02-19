@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
 
     ERR_RETp(serial_read_all(), printf("#### ERROR: read error\n"));
 
-    ERR_RETp(serial_write_all(data), printf("#### ERROR: write error\n"));
+//    ERR_RETp(serial_write_all(data), printf("#### ERROR: write error\n"));
 
 error_return:
     serial_close();

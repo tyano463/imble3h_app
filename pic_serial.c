@@ -6,11 +6,26 @@
 #include <sys/time.h>
 #include "pic_serial.h"
 
+#define DEBUG_MODE 0
 #define MAX_PATH 512
 #define TIME_OUT 2
 
+static char *b2s(const uint8_t *data, size_t size);
+
 static int g_fd = -1;
 static struct timeval g_timeout;
+
+#ifndef min
+#define min(a, b) (((a) > (b)) ? (b) : (a))
+#endif
+
+static inline ssize_t serial_write(int fd, const void *buf, size_t count) {
+#if DEBUG_MODE
+    d("n:%x data:%s", count, b2s(buf, min(count, 16)));
+#else
+    return write(fd, buf, count);
+#endif
+}
 
 static void set_timeout(struct timeval *t)
 {
@@ -166,10 +181,16 @@ int serial_close(void)
 
 int serial_read_count(int fd, char *buf, int length, struct timeval *timeout)
 {
+#if DEBUG_MODE
+    d("expect n:%x", length);
+    return length;
+#else
     fd_set read_fds;
     struct timeval start_time, current_time, elapsed_time, remaining_time;
     size_t total_read = 0;
     ssize_t bytes_read;
+
+
 
     // 開始時間を取得
     gettimeofday(&start_time, NULL);
@@ -227,10 +248,15 @@ int serial_read_count(int fd, char *buf, int length, struct timeval *timeout)
     }
 
     return total_read;
+#endif
 }
 
-int serial_read_char(int fd, char *_buf, char expect, struct timeval *timeout)
+int serial_read_char(int fd, char *_buf, uint8_t expect, struct timeval *timeout)
 {
+#if DEBUG_MODE
+    d("expect %c(%02x)", (((expect < 0x20) || (expect > 0x7e)) ? '.' : expect), expect);
+    return 1;
+#else
     int i = 0;
     char buf[8];
     int count = 0;
@@ -281,6 +307,7 @@ int serial_read_char(int fd, char *_buf, char expect, struct timeval *timeout)
         }
     }
     return i;
+#endif
 }
 
 #define DUMP_LINE_WIDTH 16
@@ -337,7 +364,7 @@ int serial_check(void)
     d("");
     ERR_RETn(g_fd < 0);
 
-    write(g_fd, "***?", 4);
+    serial_write(g_fd, "***?", 4);
     p = writer;
 
     d("");
@@ -346,7 +373,10 @@ int serial_check(void)
 
     dump(buf, readed);
 
+#if DEBUG_MODE
+#else
     if (strncmp("AE-PGM877", buf, 9) == 0)
+#endif
         ret = OK;
 error_return:
     return ret;
@@ -359,7 +389,7 @@ int serial_mode_set(void)
     int readed;
     ERR_RETn(g_fd < 0);
 
-    write(g_fd, "mD\n", 3);
+    serial_write(g_fd, "mD\n", 3);
     readed = serial_read_char(g_fd, buf, '\n', &g_timeout);
     ERR_RETp(readed != 1, printf("#### ERROR mode set\n"));
 
@@ -378,7 +408,7 @@ static int read_configuration_word(char *buf)
     buf[6] = '@';
     d("### send nrsc");
     // dump(buf, 7);
-    write(g_fd, buf, 7);
+    serial_write(g_fd, buf, 7);
     readed = serial_read_char(g_fd, buf, '@', &g_timeout);
 
     memcpy(buf, "nbs", 3);
@@ -386,9 +416,12 @@ static int read_configuration_word(char *buf)
     buf[4] = 0;
     d("### send nbs");
     // dump(buf, 5);
-    write(g_fd, buf, 5);
+    serial_write(g_fd, buf, 5);
     status = serial_read_char(g_fd, buf, '@', &g_timeout);
     ERR_RETn(!readed);
+#if DEBUG_MODE
+    return 17;
+#endif
 
 error_return:
     return readed;
@@ -411,7 +444,7 @@ static int read_flash_memory(char *buf)
     }
     d("### send nrsp");
     // dump(buf, 6 + sz_block);
-    write(g_fd, buf, sz_block + 4 + 2);
+    serial_write(g_fd, buf, sz_block + 4 + 2);
 
     readed = serial_read_char(g_fd, buf, '@', &g_timeout);
     return readed;
@@ -433,7 +466,7 @@ static int read_eeprom(char *buf)
         buf[i + 6] = '@';
     }
     d("### send nrsd %d", sz_block);
-    write(g_fd, buf, sz_block + 4 + 2);
+    serial_write(g_fd, buf, sz_block + 4 + 2);
 
     readed = serial_read_char(g_fd, buf, '@', &g_timeout);
 error_return:
@@ -448,6 +481,7 @@ int serial_read_all(void)
     int readed;
     int i;
 
+d("");
     buf = malloc(0x1000);
     ERR_RETn(g_fd < 0);
 
@@ -480,7 +514,7 @@ static int write_flash_memory(pic_data_t *data)
 {
     char *buf;
     int readed, i, ret;
-    char expect;
+    uint8_t expect;
 
     ret = NG;
 
@@ -489,21 +523,21 @@ static int write_flash_memory(pic_data_t *data)
     memcpy(buf, "nbd", 3);
     buf[3] = 0xe;
     buf[4] = 0;
-    write(g_fd, buf, 5);
+    serial_write(g_fd, buf, 5);
     readed = serial_read_char(g_fd, buf, '@', &g_timeout);
     ERR_RETp(!readed, printf("### ERROR: 1st nbd failed.\n"));
 
     memcpy(buf, "nbd", 3);
     buf[3] = 0xf;
     buf[4] = 0;
-    write(g_fd, buf, 5);
+    serial_write(g_fd, buf, 5);
     readed = serial_read_char(g_fd, buf, '@', &g_timeout);
     ERR_RETp(!readed, printf("### ERROR: 2nd nbd failed.\n"));
 
     memcpy(buf, "nwhe", 3);
     buf[3] = 8;
     buf[4] = 0;
-    write(g_fd, buf, 5);
+    serial_write(g_fd, buf, 5);
     readed = serial_read_char(g_fd, buf, '\0', &g_timeout);
     ERR_RETp(!readed, printf("### ERROR: 2nd nbd failed.\n"));
 
@@ -511,8 +545,9 @@ static int write_flash_memory(pic_data_t *data)
     for (i = 0; i < data->sz_flash; i += 2)
     {
         memcpy(buf, &data->flash[i], 2);
-        readed = serial_read_count(g_fd, buf, expect, &g_timeout);
-        ERR_RETp(!readed, printf("### ERROR: write failed @%04x: %02x %02x", i, data->flash[i], data->flash[i + 1]));
+        serial_write(g_fd, buf, 2);
+        readed = serial_read_char(g_fd, buf, expect++, &g_timeout);
+        ERR_RETp(!readed, printf("### ERROR: serial_write failed @%04x: %02x %02x", i, data->flash[i], data->flash[i + 1]));
     }
 
     ret = OK;
@@ -529,4 +564,23 @@ int serial_write_all(pic_data_t *data)
     ret = OK;
 error_return:
     return ret;
+}
+
+static char _16data[0x100];
+static char *b2s(const uint8_t *data, size_t size) {
+    char *p = _16data;
+    bool last_nl = false;
+    int i;
+
+    for(i =0;i <size;i++) {
+        p += sprintf(p, "%02x ", data[i]);
+        last_nl = false;
+        if ((size % 16) == 15) {
+            p--;
+            p += sprintf(p, "\n");
+            last_nl = true;
+        }
+    }
+
+    return _16data;
 }
